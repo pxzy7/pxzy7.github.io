@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checker MushMC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #f0e68c;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            height: 500px;
+        }
+
+        .left-panel, .right-panel {
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .section-title {
+            color: #f0e68c;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .nick-input {
+            width: 100%;
+            height: 200px;
+            background-color: #1a1a1a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        .nick-input:focus {
+            border-color: #f0e68c;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background-color: #f0e68c;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #e6d875;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background-color: #666;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #444;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #f0e68c;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 10px;
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .logs {
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-y: auto;
+            resize: none;
+            outline: none;
+            line-height: 1.4;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid;
+        }
+
+        .result-available {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left-color: #4CAF50;
+        }
+
+        .result-taken {
+            background-color: rgba(244, 67, 54, 0.1);
+            border-left-color: #f44336;
+        }
+
+        .summary-box {
+            background-color: #333;
+            border: 2px solid #f0e68c;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333;
+            border-top: 2px solid #f0e68c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .right-panel {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">Checker MushMC</div>
+            <div class="subtitle">Verificador de disponibilidade de nicks para Minecraft e MushMC</div>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="section-title">Nicks para verificar:</div>
+                <textarea 
+                    id="nickInput" 
+                    class="nick-input" 
+                    placeholder="Digite os nicks aqui, um por linha..."
+                ></textarea>
+
+                <button id="checkBtn" class="btn">Verificar Nicks</button>
+                <button id="clearBtn" class="btn">Limpar</button>
+                <button id="copyBtn" class="btn">Copiar Disponíveis</button>
+                <button id="downloadBtn" class="btn">Baixar TXT</button>
+
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="status" class="status">Pronto para verificar</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="section-title">Logs</div>
+                <div id="logs" class="logs"></div>
+            </div>
+        </div>
+
+        <div id="actions" class="actions hidden">
+            <div id="summary" class="summary-box"></div>
+        </div>
+    </div>
+
+    <script>
+        class NickChecker {
+            constructor() {
+                this.checking = false;
+                this.availableNicks = [];
+                this.results = [];
+                this.initElements();
+                this.bindEvents();
+            }
+
+            initElements() {
+                this.nickInput = document.getElementById('nickInput');
+                this.checkBtn = document.getElementById('checkBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.copyBtn = document.getElementById('copyBtn');
+                this.downloadBtn = document.getElementById('downloadBtn');
+                this.progressFill = document.getElementById('progressFill');
+                this.status = document.getElementById('status');
+                this.logs = document.getElementById('logs');
+                this.summary = document.getElementById('summary');
+                this.actions = document.getElementById('actions');
+            }
+
+            bindEvents() {
+                this.checkBtn.addEventListener('click', () => this.startChecking());
+                this.clearBtn.addEventListener('click', () => this.clearAll());
+                this.copyBtn.addEventListener('click', () => this.copyAvailable());
+                this.downloadBtn.addEventListener('click', () => this.downloadTxt());
+            }
+
+            clearAll() {
+                this.nickInput.value = '';
+                this.logs.innerHTML = '';
+                this.progressFill.style.width = '0%';
+                this.status.textContent = 'Pronto para verificar';
+                this.availableNicks = [];
+                this.results = [];
+                this.actions.classList.add('hidden');
+            }
+
+            async startChecking() {
+                if (this.checking) return;
+
+                const nicks = this.getValidNicks();
+                if (nicks.length === 0) {
+                    this.status.textContent = 'Nenhum nick válido encontrado';
+                    return;
+                }
+
+                this.checking = true;
+                this.checkBtn.disabled = true;
+                this.checkBtn.textContent = 'Verificando...';
+                this.logs.innerHTML = '';
+                this.availableNicks = [];
+                this.results = [];
+                this.actions.classList.add('hidden');
+
+                this.log(`Verificando ${nicks.length} nicks...\n\n`);
+
+                for (let i = 0; i < nicks.length; i++) {
+                    const nick = nicks[i];
+                    this.status.textContent = `Verificando: ${nick}`;
+
+                    try {
+                        const [mcTaken, mushTaken] = await Promise.all([
+                            this.checkMinecraft(nick),
+                            this.checkMushMC(nick)
+                        ]);
+
+                        const isAvailable = !mcTaken && !mushTaken;
+                        
+                        if (isAvailable) {
+                            this.availableNicks.push(nick);
+                        }
+
+                        const result = {
+                            nick,
+                            available: isAvailable,
+                            minecraft: mcTaken ? 'Ocupado' : 'Disponível',
+                            mushmc: mushTaken ? 'Ocupado' : 'Disponível'
+                        };
+
+                        this.results.push(result);
+                        this.displayResult(result);
+
+                        // Atualizar progress
+                        const progress = ((i + 1) / nicks.length) * 100;
+                        this.progressFill.style.width = `${progress}%`;
+
+                        // Delay para não sobrecarregar APIs
+                        await this.sleep(300);
+                    } catch (error) {
+                        this.log(`❌ Erro ao verificar ${nick}: ${error.message}\n`);
+                    }
+                }
+
+                this.finishChecking(nicks.length);
+            }
+
+            getValidNicks() {
+                const input = this.nickInput.value.trim();
+                if (!input) return [];
+
+                return input.split('\n')
+                    .map(nick => nick.trim())
+                    .filter(nick => nick && nick.length >= 3 && nick.length <= 16 && 
+                           nick.replace('_', '').match(/^[a-zA-Z0-9]+$/));
+            }
+
+            async checkMinecraft(nick) {
+                try {
+                    const response = await fetch(`https://playerdb.co/api/player/minecraft/${encodeURIComponent(nick)}`);
+                    
+                    if (response.status === 404) return false;
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                    const data = await response.json();
+                    return data.success && data.data && data.data.player;
+                } catch (error) {
+                    console.warn(`Erro ao verificar Minecraft para ${nick}:`, error);
+                    return false; // Assumir disponível em caso de erro
+                }
+            }
+
+            async checkMushMC(nick) {
+                try {
+                    const response = await fetch(`https://mush.com.br/api/player/${encodeURIComponent(nick)}`);
+                    
+                    if (response.status === 404) return false;
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                    const data = await response.json();
+                    return data.success && data.response && data.response.account;
+                } catch (error) {
+                    console.warn(`Erro ao verificar MushMC para ${nick}:`, error);
+                    return false; // Assumir disponível em caso de erro
+                }
+            }
+
+            displayResult(result) {
+                const statusText = result.available ? 'DISPONÍVEL' : 'OCUPADO';
+                const cssClass = result.available ? 'result-available' : 'result-taken';
+                
+                const resultHtml = `
+                    <div class="result-item ${cssClass}">
+                        <strong>${result.nick} - ${statusText}</strong><br>
+                        • Minecraft: ${result.minecraft}<br>
+                        • MushMC: ${result.mushmc}
+                    </div>
+                `;
+                
+                this.logs.innerHTML += resultHtml;
+                this.logs.scrollTop = this.logs.scrollHeight;
+            }
+
+            finishChecking(total) {
+                const available = this.availableNicks.length;
+                const occupied = total - available;
+                const percentage = ((available / total) * 100).toFixed(1);
+
+                this.status.textContent = `✅ Concluído: ${available}/${total} disponíveis`;
+                
+                const summaryHtml = `
+                    <h4>📊 RESUMO:</h4>
+                    <p><strong>Total verificado:</strong> ${total}</p>
+                    <p><strong>Disponíveis:</strong> ${available}</p>
+                    <p><strong>Ocupados:</strong> ${occupied}</p>
+                    <p><strong>Taxa de disponibilidade:</strong> ${percentage}%</p>
+                `;
+                
+                this.summary.innerHTML = summaryHtml;
+                this.actions.classList.remove('hidden');
+
+                this.checking = false;
+                this.checkBtn.disabled = false;
+                this.checkBtn.textContent = 'Verificar Nicks';
+
+                this.log(`\n📊 RESUMO:\nTotal: ${total} | Disponíveis: ${available} | Ocupados: ${occupied}\nTaxa: ${percentage}%\n`);
+            }
+
+            copyAvailable() {
+                if (this.availableNicks.length === 0) {
+                    alert('Nenhum nick disponível para copiar!');
+                    return;
+                }
+
+                const text = this.availableNicks.join('\n');
+                navigator.clipboard.writeText(text).then(() => {
+                    alert(`${this.availableNicks.length} nicks copiados para a área de transferência!`);
+                }).catch(() => {
+                    // Fallback para navegadores mais antigos
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert(`${this.availableNicks.length} nicks copiados!`);
+                });
+            }
+
+            downloadTxt() {
+                if (this.availableNicks.length === 0) {
+                    alert('Nenhum nick disponível para baixar!');
+                    return;
+                }
+
+                const content = this.availableNicks.join('\n');
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'nicks_disponiveis.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert(`${this.availableNicks.length} nicks salvos em 'nicks_disponiveis.txt'!`);
+            }
+
+            log(message) {
+                this.logs.innerHTML += message;
+                this.logs.scrollTop = this.logs.scrollHeight;
+            }
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Inicializar aplicação
+        document.addEventListener('DOMContentLoaded', () => {
+            new NickChecker();
+        });
+    </script>
+</body>
+</html>
